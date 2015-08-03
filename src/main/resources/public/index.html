@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table th {text-align: left;}
+        table th, td {padding: 10px 10px 10px 0; }
+        #messages > div { margin-top: 10px; padding: 10px; border: 1px dashed #000 }
+    </style>
+</head>
+<body>
+
+<h3 id="status">Stream Closed</h3>
+
+<form enctype="application/x-www-form-urlencoded">
+    <table>
+        <thead>
+        <tr>
+            <th>Message</th>
+            <th>Stream Type</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="text" name="message"></td>
+                <td>
+                    <select name="type">
+                        <option value="A" selected>A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="button" id="send" onclick="sendMessage()" value="Send Message">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+<hr/>
+<section id="messageContainer">
+    <header>
+        <h3>Streams</h3>
+        <label>Stream Type</label>
+        <select id="stream-type" onchange="changeStream()">
+            <option value="A" selected>A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+        </select>
+    </header>
+    <div id="messages"></div>
+</section>
+
+<script>
+    var streamType = "A";
+
+    function connectWs() {
+        var st = document.getElementById("status");
+        var messages = document.getElementById("messages");
+        if (!window.ws || window.ws.readyState != WebSocket.OPEN) {
+            window.ws = new WebSocket("ws://"+location.host+"/ws/"+streamType);
+            window.ws.onopen = function(event) {
+                st.innerHTML = "Connected";
+                console.log("WebSocket opened!");
+            };
+            window.ws.onmessage = function(event) {
+                var div = document.createElement("div");
+                div.innerHTML = event.data;
+                messages.appendChild(div);
+            };
+            window.ws.onclose = function(event) {
+                st.innerHTML = "Closed";
+            };
+        }
+    }
+
+    function sendMessage() {
+        var form = document.querySelector("form");
+        var formData = new FormData(form);
+        var req = new XMLHttpRequest();
+        req.open("POST", "message");
+        req.send(formData);
+    }
+
+    function changeStream() {
+        streamType = document.getElementById("stream-type").value;
+        window.ws.close();
+        connectWs();
+    }
+
+    connectWs();
+</script>
+</body>
+</html>

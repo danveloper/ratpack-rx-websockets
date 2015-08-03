@@ -1,0 +1,19 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'io.ratpack:ratpack-gradle:0.9.19'
+  }
+}
+
+apply plugin: 'idea'
+apply plugin: 'io.ratpack.ratpack-java'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile ratpack.dependency("rx")
+}
